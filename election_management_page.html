@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Election - VoteSecure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="landing.html" class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-vote-yea text-2xl text-green-600 mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">VoteSecure</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="admin_dashboard.html" class="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition duration-300">
+                        <i class="fas fa-arrow-left mr-1"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Election Header -->
+    <div class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <h1 class="text-2xl font-bold text-gray-900" id="electionTitle">Loading...</h1>
+                        <span class="px-3 py-1 text-sm font-medium bg-green-100 text-green-800 rounded-full" id="electionStatus">
+                            Loading...
+                        </span>
+                        <span class="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-full" id="electionType">
+                            Loading...
+                        </span>
+                    </div>
+                    <p class="text-gray-600" id="electionDescription">Loading election details...</p>
+                    <div class="flex items-center space-x-6 mt-3 text-sm text-gray-500">
+                        <span class="flex items-center">
+                            <i class="fas fa-calendar-alt mr-2"></i>
+                            <span id="electionTimeline">Loading...</span>
+                        </span>
+                        <span class="flex items-center">
+                            <i class="fas fa-users mr-2"></i>
+                            <span id="registeredVoters">0 registered voters</span>
+                        </span>
+                        <span class="flex items-center">
+                            <i class="fas fa-vote-yea mr-2"></i>
+                            <span id="votesCast">0 votes cast</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="mt-4 lg:mt-0 flex space-x-3">
+                    <button onclick="sendVotingLinks()" id="sendLinksBtn" class="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition duration-200 flex items-center">
+                        <i class="fas fa-paper-plane mr-2"></i>Send Voting Links
+                    </button>
+                    <button onclick="viewResults()" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition duration-200 flex items-center">
+                        <i class="fas fa-chart-bar mr-2"></i>View Results
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Tabs -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="border-b border-gray-200">
+            <nav class="-mb-px flex space-x-8">
+                <button id="linksTab" class="border-b-2 border-green-500 text-green-600 px-1 py-4 text-sm font-medium" onclick="showTab('links')">
+                    Voting Links
+                </button>
+                <button id="votersTab" class="border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 px-1 py-4 text-sm font-medium" onclick="showTab('voters')">
+                    Registered Voters
+                </button>
+            </nav>
+        </div>
+
+        <!-- Voting Links Tab Content -->
+        <div id="linksContent" class="py-6 space-y-6">
+            <!-- Registration Link (Secured Elections) -->
+            <div id="registrationLinkSection" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" style="display: none;">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Registration Link</h3>
+                <p class="text-gray-600 mb-4">Share this link with voters to allow them to register for this election:</p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <div class="flex-1">
+                        <div class="flex">
+                            <input 
+                                type="text" 
+                                readonly 
+                                class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg bg-gray-50 text-gray-700 text-sm"
+                                id="registrationLink"
+                            >
+                            <button onclick="copyRegistrationLink()" class="bg-green-600 text-white hover:bg-green-700 px-4 py-3 rounded-r-lg font-medium transition duration-200">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Anonymous Voting Link -->
+            <div id="anonymousLinkSection" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" style="display: none;">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Anonymous Voting Link</h3>
+                <p class="text-gray-600 mb-4">Share this link publicly - anyone with the link can vote:</p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <div class="flex-1">
+                        <div class="flex">
+                            <input 
+                                type="text" 
+                                readonly 
+                                class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg bg-gray-50 text-gray-700 text-sm"
+                                id="anonymousLink"
+                            >
+                            <button onclick="copyAnonymousLink()" class="bg-green-600 text-white hover:bg-green-700 px-4 py-3 rounded-r-lg font-medium transition duration-200">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voting Links Stats (For Secured Elections) -->
+            <div id="votingStatsSection" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" style="display: none;">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Voting Links Management</h3>
+                    <button onclick="sendAllVotingLinks()" class="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition duration-200 flex items-center">
+                        <i class="fas fa-paper-plane mr-2"></i>Send All Links
+                    </button>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-users text-green-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-green-800">Registered</h4>
+                                <p class="text-2xl font-bold text-green-900" id="statsRegistered">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-vote-yea text-blue-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-blue-800">Voted</h4>
+                                <p class="text-2xl font-bold text-blue-900" id="statsVoted">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-clock text-orange-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-orange-800">Pending</h4>
+                                <p class="text-2xl font-bold text-orange-900" id="statsPending">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registered Voters Tab Content -->
+        <div id="votersContent" class="py-6 hidden">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Registered Voters</h3>
+                <div id="votersTableContainer">
+                    <p class="text-gray-500 text-center py-8">Loading voters...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-400">&copy; 2025 VoteSecure. Secure Voting System.</p>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script>
+        let currentElectionId = null;
+        let currentElection = null;
+
+        // Check authentication
+        if (!isAuthenticated()) {
+            alert('Please login first');
+            window.location.href = 'admin_login_page.html';
+        }
+
+        // Get election ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        currentElectionId = urlParams.get('id');
+
+        if (!currentElectionId) {
+            alert('No election ID provided');
+            window.location.href = 'admin_dashboard.html';
+        }
+
+        // Load election data
+        async function loadElectionData() {
+            try {
+                console.log('📄 Loading election data...');
+                
+                const election = await apiCall(`/api/admin/elections/${currentElectionId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    }
+                });
+                
+                currentElection = election;
+                console.log('✅ Election loaded:', election);
+                
+                displayElectionInfo(election);
+                
+                // Normalize type to lowercase for comparison
+                const electionType = (election.type || '').toLowerCase();
+                
+                // Load registrations if secured election
+                if (electionType === 'secured') {
+                    await loadRegistrations();
+                }
+                
+            } catch (error) {
+                console.error('❌ Failed to load election:', error);
+                alert('Failed to load election: ' + error.message);
+                window.location.href = 'admin_dashboard.html';
+            }
+        }
+
+        function displayElectionInfo(election) {
+            // Update header
+            document.getElementById('electionTitle').textContent = election.title;
+            document.getElementById('electionDescription').textContent = election.description || 'No description';
+            
+            // Normalize type to lowercase for comparison
+            const electionType = (election.type || '').toLowerCase();
+            
+            console.log('🔍 Election Type from Backend:', election.type);
+            console.log('🔍 Normalized Type:', electionType);
+            
+            // Update type
+            const typeSpan = document.getElementById('electionType');
+            if (electionType === 'secured') {
+                typeSpan.textContent = 'Secured';
+                typeSpan.className = 'px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-full';
+            } else {
+                typeSpan.textContent = 'Anonymous';
+                typeSpan.className = 'px-3 py-1 text-sm font-medium bg-orange-100 text-orange-800 rounded-full';
+            }
+            
+            // Update status
+            const now = new Date();
+            const startTime = new Date(election.start_time);
+            const endTime = new Date(election.end_time);
+            const statusSpan = document.getElementById('electionStatus');
+            
+            if (now < startTime) {
+                statusSpan.textContent = 'Upcoming';
+                statusSpan.className = 'px-3 py-1 text-sm font-medium bg-yellow-100 text-yellow-800 rounded-full';
+            } else if (now > endTime) {
+                statusSpan.textContent = 'Ended';
+                statusSpan.className = 'px-3 py-1 text-sm font-medium bg-gray-100 text-gray-800 rounded-full';
+            } else {
+                statusSpan.textContent = 'Active';
+                statusSpan.className = 'px-3 py-1 text-sm font-medium bg-green-100 text-green-800 rounded-full';
+            }
+            
+            // Update timeline
+            const startDate = new Date(election.start_time).toLocaleDateString();
+            const endDate = new Date(election.end_time).toLocaleDateString();
+            document.getElementById('electionTimeline').textContent = `${startDate} - ${endDate}`;
+            
+            // Show appropriate link section - USE LOWERCASE COMPARISON
+            if (electionType === 'secured') {
+                console.log('✅ Showing SECURED election sections');
+                document.getElementById('registrationLinkSection').style.display = 'block';
+                document.getElementById('votingStatsSection').style.display = 'block';
+                document.getElementById('anonymousLinkSection').style.display = 'none';
+                document.getElementById('registrationLink').value = election.registration_link || 'Generating...';
+                document.getElementById('sendLinksBtn').style.display = 'flex';
+            } else {
+                console.log('✅ Showing ANONYMOUS election sections');
+                document.getElementById('anonymousLinkSection').style.display = 'block';
+                document.getElementById('registrationLinkSection').style.display = 'none';
+                document.getElementById('votingStatsSection').style.display = 'none';
+                document.getElementById('anonymousLink').value = election.voting_link || 'Generating...';
+                document.getElementById('sendLinksBtn').style.display = 'none';
+            }
+        }
+
+        async function loadRegistrations() {
+            try {
+                const registrations = await apiCall(`/api/admin/elections/${currentElectionId}/registrations`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    }
+                });
+                
+                console.log('✅ Registrations loaded:', registrations);
+                
+                // Update stats
+                const totalRegistered = registrations.length;
+                const voted = registrations.filter(r => r.has_voted).length;
+                const pending = totalRegistered - voted;
+                
+                document.getElementById('registeredVoters').textContent = `${totalRegistered} registered voters`;
+                document.getElementById('votesCast').textContent = `${voted} votes cast (${totalRegistered > 0 ? Math.round(voted/totalRegistered*100) : 0}%)`;
+                
+                document.getElementById('statsRegistered').textContent = totalRegistered;
+                document.getElementById('statsVoted').textContent = voted;
+                document.getElementById('statsPending').textContent = pending;
+                
+                displayVotersTable(registrations);
+                
+            } catch (error) {
+                console.error('❌ Failed to load registrations:', error);
+            }
+        }
+
+        function displayVotersTable(registrations) {
+            const container = document.getElementById('votersTableContainer');
+            
+            if (registrations.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">No registered voters yet</p>';
+                return;
+            }
+            
+            let tableHTML = `
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Voter Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registration Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+            `;
+            
+            registrations.forEach(reg => {
+                const regDate = new Date(reg.registration_time).toLocaleDateString();
+                const statusBadge = reg.has_voted 
+                    ? '<span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Voted</span>'
+                    : '<span class="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full">Pending</span>';
+                
+                tableHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-8 h-8 bg-${reg.has_voted ? 'green' : 'orange'}-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-${reg.has_voted ? 'green' : 'orange'}-600 text-sm"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">${reg.voter_email}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">${regDate}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            ${statusBadge}
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            container.innerHTML = tableHTML;
+        }
+
+        function showTab(tabName) {
+            // Hide all contents
+            document.getElementById('linksContent').classList.add('hidden');
+            document.getElementById('votersContent').classList.add('hidden');
+            
+            // Remove active styles
+            document.getElementById('linksTab').className = 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 px-1 py-4 text-sm font-medium';
+            document.getElementById('votersTab').className = 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 px-1 py-4 text-sm font-medium';
+            
+            // Show selected content
+            document.getElementById(tabName + 'Content').classList.remove('hidden');
+            document.getElementById(tabName + 'Tab').className = 'border-b-2 border-green-500 text-green-600 px-1 py-4 text-sm font-medium';
+        }
+
+        function copyRegistrationLink() {
+            const linkInput = document.getElementById('registrationLink');
+            linkInput.select();
+            navigator.clipboard.writeText(linkInput.value);
+            alert('Registration link copied to clipboard!');
+        }
+
+        function copyAnonymousLink() {
+            const linkInput = document.getElementById('anonymousLink');
+            linkInput.select();
+            navigator.clipboard.writeText(linkInput.value);
+            alert('Voting link copied to clipboard!');
+        }
+
+        async function sendVotingLinks() {
+            if (!confirm('Send voting links to all registered voters who haven\'t voted yet?')) {
+                return;
+            }
+            
+            const button = document.getElementById('sendLinksBtn');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            button.disabled = true;
+            
+            try {
+                const result = await apiCall(`/api/admin/elections/${currentElectionId}/send-voting-links`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    }
+                });
+                
+                alert(`✅ Voting links sent successfully!\n\nSent: ${result.total_sent}\nFailed: ${result.failed}`);
+                
+            } catch (error) {
+                console.error('❌ Failed to send links:', error);
+                alert('Failed to send voting links: ' + error.message);
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        async function sendAllVotingLinks() {
+            await sendVotingLinks();
+        }
+
+        function viewResults() {
+            window.location.href = `election_results_page.html?id=${currentElectionId}`;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadElectionData);
+    </script>
+</body>
+</html>

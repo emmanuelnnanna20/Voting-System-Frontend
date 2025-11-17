@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Results - VoteSecure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="landing.html" class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-vote-yea text-2xl text-green-600 mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">VoteSecure</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="admin_dashboard.html" class="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition duration-300">
+                        <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Results Header -->
+    <div class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <h1 class="text-2xl font-bold text-gray-900" id="electionTitle">Loading...</h1>
+                        <span class="px-3 py-1 text-sm font-medium bg-green-100 text-green-800 rounded-full" id="electionStatus">
+                            Loading...
+                        </span>
+                    </div>
+                    <p class="text-gray-600">Live election results updated in real-time</p>
+                    <div class="flex items-center space-x-6 mt-3 text-sm text-gray-500" id="electionMeta">
+                        <span class="flex items-center">
+                            <i class="fas fa-calendar-alt mr-2"></i>
+                            Loading...
+                        </span>
+                    </div>
+                </div>
+                <div class="mt-4 lg:mt-0 flex space-x-3">
+                    <button onclick="refreshResults()" class="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition duration-200 flex items-center">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                    <button onclick="exportResults()" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition duration-200 flex items-center">
+                        <i class="fas fa-download mr-2"></i>Export
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Results Overview Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" id="statsCards">
+            <!-- Stats will be loaded here -->
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Results Chart -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Vote Distribution</h2>
+                <div class="h-80">
+                    <canvas id="resultsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Detailed Results -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Detailed Results</h2>
+                <div class="space-y-4" id="detailedResults">
+                    <p class="text-gray-500 text-center py-8">Loading results...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-400">&copy; 2025 VoteSecure. Secure Voting System.</p>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script>
+        let currentElectionId = null;
+        let resultsChart = null;
+
+        // Get election ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        currentElectionId = urlParams.get('id');
+
+        if (!currentElectionId) {
+            alert('No election ID provided');
+            window.location.href = 'admin_dashboard.html';
+        }
+
+        // Load election results
+        async function loadElectionResults() {
+            try {
+                console.log('📊 Loading election results...');
+                
+                // Get election details
+                const election = await apiCall(`/api/election/${currentElectionId}`, {
+                    method: 'GET'
+                });
+                
+                // Get election results
+                const results = await apiCall(`/api/election/${currentElectionId}/results`, {
+                    method: 'GET'
+                });
+                
+                // Get stats
+                const stats = await apiCall(`/api/election/${currentElectionId}/stats`, {
+                    method: 'GET'
+                });
+                
+                console.log('✅ Data loaded:', { election, results, stats });
+                
+                displayElectionInfo(election, stats);
+                displayResults(results);
+                displayStats(stats, results);
+                
+            } catch (error) {
+                console.error('❌ Failed to load results:', error);
+                alert('Failed to load election results: ' + error.message);
+            }
+        }
+
+        function displayElectionInfo(election, stats) {
+            document.getElementById('electionTitle').textContent = election.title + ' - Results';
+            
+            // Update status
+            const now = new Date();
+            const endTime = new Date(election.end_time);
+            const statusSpan = document.getElementById('electionStatus');
+            
+            if (now > endTime) {
+                statusSpan.textContent = 'Final Results';
+                statusSpan.className = 'px-3 py-1 text-sm font-medium bg-gray-100 text-gray-800 rounded-full';
+            } else {
+                statusSpan.textContent = 'Live Results';
+                statusSpan.className = 'px-3 py-1 text-sm font-medium bg-green-100 text-green-800 rounded-full';
+            }
+            
+            // Update meta info
+            const startDate = new Date(election.start_time).toLocaleDateString();
+            const endDate = new Date(election.end_time).toLocaleDateString();
+            
+            let metaHTML = `
+                <span class="flex items-center">
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    ${startDate} - ${endDate}
+                </span>
+                <span class="flex items-center">
+                    <i class="fas fa-vote-yea mr-2"></i>
+                    ${stats.total_votes} votes cast
+                </span>
+            `;
+            
+            if (stats.total_registered) {
+                const participation = stats.participation_rate || 0;
+                metaHTML += `
+                    <span class="flex items-center">
+                        <i class="fas fa-users mr-2"></i>
+                        ${stats.total_registered} registered (${participation}% participated)
+                    </span>
+                `;
+            }
+            
+            document.getElementById('electionMeta').innerHTML = metaHTML;
+        }
+
+        function displayStats(stats, results) {
+            const winner = results.results.length > 0 ? results.results[0] : null;
+            
+            let statsHTML = `
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-trophy text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">Winner</h3>
+                            <p class="text-xl font-bold text-gray-900">${winner ? winner.choice : 'N/A'}</p>
+                            <p class="text-sm text-gray-600">${winner ? winner.percentage + '% of votes' : ''}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-vote-yea text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">Total Votes</h3>
+                            <p class="text-2xl font-bold text-gray-900">${stats.total_votes}</p>
+                            <p class="text-sm text-gray-600">${stats.participation_rate || 0}% participation</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-users text-purple-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">${stats.total_registered ? 'Registered' : 'Public'}</h3>
+                            <p class="text-2xl font-bold text-gray-900">${stats.total_registered || 'N/A'}</p>
+                            <p class="text-sm text-gray-600">${stats.total_registered ? 'Voters' : 'Election'}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-line text-orange-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">Options</h3>
+                            <p class="text-2xl font-bold text-gray-900">${results.results.length}</p>
+                            <p class="text-sm text-gray-600">Choices</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('statsCards').innerHTML = statsHTML;
+        }
+
+        function displayResults(results) {
+            if (results.results.length === 0) {
+                document.getElementById('detailedResults').innerHTML = `
+                    <p class="text-gray-500 text-center py-8">No votes cast yet</p>
+                `;
+                return;
+            }
+            
+            // Display detailed results
+            const colors = ['green', 'blue', 'purple', 'orange', 'pink', 'indigo', 'yellow', 'red'];
+            let detailedHTML = '';
+            
+            results.results.forEach((result, index) => {
+                const color = colors[index % colors.length];
+                const rank = index + 1;
+                
+                detailedHTML += `
+                    <div class="flex items-center justify-between p-4 bg-${color}-50 rounded-lg border border-${color}-200">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-${color}-100 rounded-full flex items-center justify-center">
+                                <span class="text-${color}-800 font-bold">${rank}</span>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-900">${result.choice}</h3>
+                                <p class="text-sm text-gray-600">${result.count} votes</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-lg font-bold text-${color}-800">${result.percentage}%</span>
+                            <div class="w-32 bg-${color}-200 rounded-full h-2 mt-1">
+                                <div class="bg-${color}-600 h-2 rounded-full" style="width: ${result.percentage}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('detailedResults').innerHTML = detailedHTML;
+            
+            // Create chart
+            createResultsChart(results);
+        }
+
+        function createResultsChart(results) {
+            const ctx = document.getElementById('resultsChart').getContext('2d');
+            
+            // Destroy existing chart if any
+            if (resultsChart) {
+                resultsChart.destroy();
+            }
+            
+            const colors = [
+                '#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', 
+                '#EC4899', '#6366F1', '#EAB308', '#EF4444'
+            ];
+            
+            resultsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: results.results.map(r => r.choice),
+                    datasets: [{
+                        data: results.results.map(r => r.count),
+                        backgroundColor: colors.slice(0, results.results.length),
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} votes (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+        }
+
+        async function refreshResults() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            button.disabled = true;
+            
+            try {
+                await loadElectionResults();
+                alert('Results refreshed successfully!');
+            } catch (error) {
+                alert('Failed to refresh results: ' + error.message);
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        function exportResults() {
+            alert('Export functionality will generate a CSV/PDF report with election results');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadElectionResults);
+    </script>
+</body>
+</html>

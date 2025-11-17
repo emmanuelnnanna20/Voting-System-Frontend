@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - VoteSecure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="landing.html" class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-vote-yea text-2xl text-green-600 mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">VoteSecure</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-700">Welcome, <span class="font-semibold" id="adminName">Loading...</span></span>
+                    <button onclick="logout()" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition duration-300">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <div class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+                    <p class="text-gray-600 mt-1">Manage your elections and monitor voting activity</p>
+                </div>
+                <a href="create_election_page.html" class="bg-green-600 text-white hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition duration-300 transform hover:scale-105 flex items-center">
+                    <i class="fas fa-plus mr-2"></i>Create New Election
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <!-- Total Elections -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clipboard-list text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">Total Elections</h3>
+                        <p class="text-2xl font-bold text-gray-900" id="totalElections">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Elections -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-play-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">Active Elections</h3>
+                        <p class="text-2xl font-bold text-gray-900" id="activeElections">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Votes -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-vote-yea text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">Total Votes</h3>
+                        <p class="text-2xl font-bold text-gray-900" id="totalVotes">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voters Registered -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">Voters Registered</h3>
+                        <p class="text-2xl font-bold text-gray-900" id="totalVoters">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Elections List -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Your Elections</h2>
+            </div>
+            
+            <div class="divide-y divide-gray-200" id="electionsList">
+                <!-- Elections will be loaded dynamically here -->
+                <div class="p-8 text-center">
+                    <i class="fas fa-clipboard-list text-4xl text-gray-300 mb-4"></i>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">No Elections Yet</h3>
+                    <p class="text-gray-600 mb-4">Create your first election to get started</p>
+                    <a href="create_election_page.html" class="bg-green-600 text-white hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition duration-200 inline-block">
+                        Create Your First Election
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-link text-2xl text-green-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Share Voting Links</h3>
+                <p class="text-gray-600 text-sm mb-4">Generate and distribute voting or registration links to participants</p>
+                <button onclick="shareLinks()" class="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-200">
+                    Manage Links
+                </button>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-envelope text-2xl text-blue-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Send Notifications</h3>
+                <p class="text-gray-600 text-sm mb-4">Send voting reminders and election updates to registered voters</p>
+                <button onclick="sendNotifications()" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-200">
+                    Send Emails
+                </button>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center">
+                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-download text-2xl text-purple-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Export Data</h3>
+                <p class="text-gray-600 text-sm mb-4">Download election results and voter data for analysis</p>
+                <button onclick="exportData()" class="bg-purple-600 text-white hover:bg-purple-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-200">
+                    Export Reports
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-400">&copy; 2025 VoteSecure. Secure Voting System.</p>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script>
+        // Check if user is logged in
+        if (!isAuthenticated()) {
+            alert('Please login first');
+            window.location.href = 'admin_login_page.html';
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                console.log('🔄 Loading dashboard data...');
+                
+                // Get current admin info
+                const adminInfo = await apiCall('/api/admin/me', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    }
+                });
+                
+                // Update admin name in the header
+                document.getElementById('adminName').textContent = adminInfo.name;
+                
+                // Get admin's elections
+                const elections = await apiCall('/api/admin/elections', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    }
+                });
+                
+                console.log('✅ Dashboard data loaded:', { adminInfo, elections });
+                
+                // Update the dashboard with real data
+                updateDashboardStats(elections);
+                displayElectionsList(elections);
+                
+            } catch (error) {
+                console.error('❌ Failed to load dashboard:', error);
+                
+                // If token is invalid, redirect to login
+                if (error.message.includes('401') || error.message.includes('403')) {
+                    alert('Session expired. Please login again.');
+                    removeAuthToken();
+                    window.location.href = 'admin_login_page.html';
+                } else {
+                    // Show user-friendly error message
+                    document.getElementById('adminName').textContent = 'Error Loading';
+                    
+                    const electionsContainer = document.getElementById('electionsList');
+                    electionsContainer.innerHTML = `
+                        <div class="p-8 text-center">
+                            <i class="fas fa-exclamation-triangle text-4xl text-red-300 mb-4"></i>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Unable to Load Dashboard</h3>
+                            <p class="text-gray-600 mb-4">${error.message}</p>
+                            <button onclick="loadDashboardData()" class="bg-green-600 text-white hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition duration-200 inline-block">
+                                <i class="fas fa-refresh mr-2"></i>Try Again
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function updateDashboardStats(elections) {
+            // Update stats with real data
+            document.getElementById('totalElections').textContent = elections.length;
+            
+            const activeElections = elections.filter(e => {
+                const now = new Date();
+                const startTime = new Date(e.start_time);
+                const endTime = new Date(e.end_time);
+                return startTime <= now && endTime >= now;
+            }).length;
+            document.getElementById('activeElections').textContent = activeElections;
+            
+            // Calculate total votes and voters (placeholder for now)
+            let totalVotes = 0;
+            let totalVoters = 0;
+            
+            elections.forEach(election => {
+                // These would come from your backend API
+                // For now, we'll use placeholder values
+                totalVotes += election.votes_count || 0;
+                totalVoters += election.voters_count || 0;
+            });
+            
+            document.getElementById('totalVotes').textContent = totalVotes;
+            document.getElementById('totalVoters').textContent = totalVoters;
+        }
+
+        function displayElectionsList(elections) {
+            const electionsContainer = document.getElementById('electionsList');
+            
+            if (elections.length === 0) {
+                electionsContainer.innerHTML = `
+                    <div class="p-8 text-center">
+                        <i class="fas fa-clipboard-list text-4xl text-gray-300 mb-4"></i>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">No Elections Yet</h3>
+                        <p class="text-gray-600 mb-4">Create your first election to get started</p>
+                        <a href="create_election_page.html" class="bg-green-600 text-white hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition duration-200 inline-block">
+                            Create Your First Election
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            let electionsHTML = '';
+            
+            elections.forEach(election => {
+                const now = new Date();
+                const startTime = new Date(election.start_time);
+                const endTime = new Date(election.end_time);
+                
+                let status = '';
+                let statusClass = '';
+                
+                if (now < startTime) {
+                    status = 'Upcoming';
+                    statusClass = 'bg-yellow-100 text-yellow-800';
+                } else if (now > endTime) {
+                    status = 'Ended';
+                    statusClass = 'bg-gray-100 text-gray-800';
+                } else {
+                    status = 'Active';
+                    statusClass = 'bg-green-100 text-green-800';
+                }
+                
+                const typeClass = election.type === 'SECURED' ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800';
+                const typeText = election.type === 'SECURED' ? 'Secured' : 'Anonymous';
+                
+                electionsHTML += `
+                    <div class="p-6 hover:bg-gray-50 transition duration-200">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3">
+                                    <h3 class="text-lg font-semibold text-gray-900">${election.title}</h3>
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full ${statusClass}">
+                                        ${status}
+                                    </span>
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full ${typeClass}">
+                                        ${typeText}
+                                    </span>
+                                </div>
+                                <p class="text-gray-600 mt-1">${election.description || 'No description'}</p>
+                                <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-calendar-alt mr-1"></i>
+                                        ${formatDate(election.end_time)}
+                                    </span>
+                                    <span class="flex items-center">
+                                        <i class="fas fa-users mr-1"></i>
+                                        ${election.voters_count || 0} registered voters
+                                    </span>
+                                    <span class="flex items-center">
+                                        <i class="fas fa-vote-yea mr-1"></i>
+                                        ${election.votes_count || 0} votes cast
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="viewElection('${election.id}')" class="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-200 flex items-center">
+                                    <i class="fas fa-eye mr-1"></i>Manage
+                                </button>
+                                <button onclick="viewResults('${election.id}')" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-200 flex items-center">
+                                    <i class="fas fa-chart-bar mr-1"></i>Results
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            electionsContainer.innerHTML = electionsHTML;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                removeAuthToken();
+                window.location.href = 'admin_login_page.html';
+            }
+        }
+
+        function viewElection(electionId) {
+            window.location.href = `election_management_page.html?id=${electionId}`;
+        }
+
+        function viewResults(electionId) {
+            window.location.href = `election_results_page.html?id=${electionId}`;
+        }
+
+        function shareLinks() {
+            alert('Link sharing feature will be available in election management page');
+        }
+
+        function sendNotifications() {
+            alert('Email notification feature will be available soon');
+        }
+
+        function exportData() {
+            alert('Data export feature will be available soon');
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', loadDashboardData);
+    </script>
+</body>
+</html>

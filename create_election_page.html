@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Election - VoteSecure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="landing.html" class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-vote-yea text-2xl text-green-600 mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">VoteSecure</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="admin_dashboard.html" class="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition duration-300">
+                        <i class="fas fa-arrow-left mr-1"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Create New Election</h1>
+            <p class="text-gray-600 mt-2">Set up a new voting event with your preferred settings</p>
+        </div>
+
+        <!-- Election Form -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+            <form id="electionForm" class="space-y-8">
+                <!-- Basic Information -->
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
+                                Election Title *
+                            </label>
+                            <input 
+                                id="title" 
+                                name="title" 
+                                type="text" 
+                                required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
+                                placeholder="e.g., Class President Election 2025"
+                            >
+                        </div>
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+                                Description
+                            </label>
+                            <textarea 
+                                id="description" 
+                                name="description" 
+                                rows="3"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
+                                placeholder="Describe the purpose and details of this election..."
+                            ></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Election Type -->
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Election Type</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Secured Election -->
+                        <div class="relative">
+                            <input 
+                                type="radio" 
+                                id="secured" 
+                                name="electionType" 
+                                value="secured" 
+                                class="hidden peer"
+                                checked
+                            >
+                            <label for="secured" class="block p-6 border-2 border-gray-200 rounded-lg cursor-pointer peer-checked:border-green-500 peer-checked:bg-green-50 transition duration-200 hover:border-gray-300">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                                        <i class="fas fa-shield-alt text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">Secured Voting</h3>
+                                        <p class="text-sm text-gray-600 mt-1">Voters must register with email before voting</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-xs text-gray-500">
+                                    <ul class="space-y-1">
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-green-500 mr-2"></i>
+                                            Voter registration required
+                                        </li>
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-green-500 mr-2"></i>
+                                            One-time voting links via email
+                                        </li>
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-green-500 mr-2"></i>
+                                            Prevents duplicate voting
+                                        </li>
+                                    </ul>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Anonymous Election -->
+                        <div class="relative">
+                            <input 
+                                type="radio" 
+                                id="anonymous" 
+                                name="electionType" 
+                                value="anonymous" 
+                                class="hidden peer"
+                            >
+                            <label for="anonymous" class="block p-6 border-2 border-gray-200 rounded-lg cursor-pointer peer-checked:border-green-500 peer-checked:bg-green-50 transition duration-200 hover:border-gray-300">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                        <i class="fas fa-user-secret text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">Anonymous Voting</h3>
+                                        <p class="text-sm text-gray-600 mt-1">Anyone can vote without registration</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-xs text-gray-500">
+                                    <ul class="space-y-1">
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-blue-500 mr-2"></i>
+                                            No registration required
+                                        </li>
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-blue-500 mr-2"></i>
+                                            Public voting link
+                                        </li>
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-blue-500 mr-2"></i>
+                                            Quick and simple setup
+                                        </li>
+                                    </ul>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voting Options -->
+                <div id="votingOptionsSection">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Voting Options</h2>
+                    <p class="text-sm text-gray-600 mb-4">Add the choices that voters can select from (minimum 2 options)</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <input 
+                                type="text" 
+                                placeholder="Enter voting option (e.g., Candidate A)"
+                                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 option-input"
+                                id="optionInput"
+                            >
+                            <button type="button" onclick="addOption()" class="bg-green-600 text-white hover:bg-green-700 px-4 py-3 rounded-lg font-medium transition duration-200">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div id="optionsList" class="space-y-2">
+                            <!-- Options will be added here dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Election Timeline</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="startTime" class="block text-sm font-medium text-gray-700 mb-1">
+                                Start Date & Time *
+                            </label>
+                            <input 
+                                id="startTime" 
+                                name="startTime" 
+                                type="datetime-local" 
+                                required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
+                            >
+                        </div>
+                        <div>
+                            <label for="endTime" class="block text-sm font-medium text-gray-700 mb-1">
+                                End Date & Time *
+                            </label>
+                            <input 
+                                id="endTime" 
+                                name="endTime" 
+                                type="datetime-local" 
+                                required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                    <button 
+                        type="submit" 
+                        class="flex-1 bg-green-600 text-white hover:bg-green-700 px-6 py-4 rounded-lg font-semibold transition duration-200 transform hover:scale-[1.02] flex items-center justify-center"
+                    >
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Create Election
+                    </button>
+                    <a 
+                        href="admin_dashboard.html" 
+                        class="flex-1 bg-gray-200 text-gray-800 hover:bg-gray-300 px-6 py-4 rounded-lg font-semibold transition duration-200 text-center"
+                    >
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Help Section -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-lightbulb text-blue-400 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-medium text-blue-800">Election Setup Tips</h3>
+                    <div class="mt-2 text-sm text-blue-700">
+                        <ul class="space-y-1">
+                            <li>• Choose <strong>Secured Voting</strong> for important elections where you need to verify voters</li>
+                            <li>• Use <strong>Anonymous Voting</strong> for quick surveys or public opinion polls</li>
+                            <li>• Set realistic timeframes - most elections run for 24-48 hours</li>
+                            <li>• Add clear, distinct voting options to avoid confusion</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-400">&copy; 2025 VoteSecure. Secure Voting System.</p>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script>
+        // Check if user is logged in
+        if (!isAuthenticated()) {
+            alert('Please login first');
+            window.location.href = 'admin_login_page.html';
+        }
+
+        let optionCount = 0;
+        let options = [];
+
+        function addOption() {
+            const input = document.getElementById('optionInput');
+            const value = input.value.trim();
+            
+            if (value) {
+                optionCount++;
+                options.push(value);
+                
+                const optionsList = document.getElementById('optionsList');
+                
+                const optionElement = document.createElement('div');
+                optionElement.className = 'flex items-center justify-between bg-gray-50 p-3 rounded-lg';
+                optionElement.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-6 h-6 bg-green-100 text-green-800 rounded-full text-sm flex items-center justify-center font-medium">${optionCount}</span>
+                        <span class="text-gray-900">${value}</span>
+                    </div>
+                    <button type="button" onclick="removeOption(this, '${value.replace(/'/g, "\\'")}', ${optionCount})" class="text-red-500 hover:text-red-700 transition duration-200">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                optionsList.appendChild(optionElement);
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function removeOption(button, value, num) {
+            options = options.filter(opt => opt !== value);
+            button.parentElement.remove();
+            
+            // Renumber remaining options
+            const optionElements = document.querySelectorAll('#optionsList > div');
+            optionElements.forEach((option, index) => {
+                const numberSpan = option.querySelector('span:first-child');
+                numberSpan.textContent = index + 1;
+            });
+            
+            optionCount = options.length;
+        }
+
+        // Form submission
+        document.getElementById('electionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const electionTypeElement = document.querySelector('input[name="electionType"]:checked');
+            const electionType = electionTypeElement ? electionTypeElement.value : 'secured';
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            
+            // Debug: Log what we're sending
+            console.log('📋 Election Type Selected:', electionType);
+            console.log('📋 All Form Data:', {
+                title,
+                description,
+                type: electionType,
+                startTime,
+                endTime,
+                options
+            });
+            
+            // Validation
+            if (options.length < 2) {
+                alert('Please add at least 2 voting options');
+                return;
+            }
+            
+            if (new Date(startTime) >= new Date(endTime)) {
+                alert('End time must be after start time');
+                return;
+            }
+            
+            // Show loading state
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Election...';
+            submitButton.disabled = true;
+            
+            try {
+                console.log('📄 Creating election...');
+                console.log('📋 Options:', options);
+                
+                // Real API call to create election
+                const response = await apiCall('/api/admin/elections', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        description: description || null,
+                        type: electionType, // Send exactly as selected (no transformation)
+                        start_time: startTime,
+                        end_time: endTime,
+                        options: options
+                    })
+                });
+                
+                console.log('✅ Election created:', response);
+                
+                alert('✅ Election created successfully! Redirecting to management page...');
+                window.location.href = `election_management_page.html?id=${response.id}`;
+                
+            } catch (error) {
+                console.error('❌ Failed to create election:', error);
+                alert('❌ Failed to create election: ' + error.message);
+                
+                // Reset button
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }
+        });
+
+        // Set minimum datetime to current time
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const localDateTime = now.toISOString().slice(0, 16);
+            document.getElementById('startTime').min = localDateTime;
+            document.getElementById('endTime').min = localDateTime;
+            
+            // Set default times
+            document.getElementById('startTime').value = localDateTime;
+            
+            const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+            document.getElementById('endTime').value = tomorrow.toISOString().slice(0, 16);
+        });
+
+        // Allow pressing Enter to add options
+        document.getElementById('optionInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addOption();
+            }
+        });
+    </script>
+</body>
+</html>

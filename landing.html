@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoteSecure - Secure Voting System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-white text-gray-900 font-sans">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-vote-yea text-2xl text-green-600 mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">VoteSecure</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="admin_login_page.html" class="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition duration-300">
+                        Login
+                    </a>
+                    <a href="admin_signup_page.html" class="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md text-sm font-medium transition duration-300">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-white to-green-50 py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+                    Secure & Transparent
+                    <span class="text-green-600">Voting</span>
+                </h1>
+                <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                    Create and manage elections with confidence. Our platform ensures secure, anonymous, and transparent voting for any organization.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="admin_signup_page.html" class="bg-green-600 text-white hover:bg-green-700 px-8 py-4 rounded-lg text-lg font-semibold transition duration-300 transform hover:scale-105">
+                        Create Your First Election
+                    </a>
+                    <a href="#features" class="border border-gray-300 text-gray-700 hover:border-green-600 hover:text-green-600 px-8 py-4 rounded-lg text-lg font-semibold transition duration-300">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    Why Choose Our Voting System?
+                </h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Built with security and simplicity in mind for organizations of all sizes.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="text-center p-6 rounded-lg border border-gray-200 hover:border-green-600 transition duration-300">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shield-alt text-2xl text-green-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Secure Voting</h3>
+                    <p class="text-gray-600">
+                        One-time voting links and encrypted ballots ensure each vote is secure and tamper-proof.
+                    </p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="text-center p-6 rounded-lg border border-gray-200 hover:border-green-600 transition duration-300">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user-secret text-2xl text-green-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Anonymous & Open</h3>
+                    <p class="text-gray-600">
+                        Choose between anonymous public voting or secured registration-based elections.
+                    </p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="text-center p-6 rounded-lg border border-gray-200 hover:border-green-600 transition duration-300">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-chart-bar text-2xl text-green-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Real-time Results</h3>
+                    <p class="text-gray-600">
+                        Monitor participation rates and view live results as votes come in.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    How It Works
+                </h2>
+            </div>
+            
+            <div class="grid md:grid-cols-4 gap-8">
+                <!-- Step 1 -->
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">1</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Create Account</h3>
+                    <p class="text-gray-600 text-sm">Sign up as an admin to get started</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">2</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Setup Election</h3>
+                    <p class="text-gray-600 text-sm">Choose voting type and set timeline</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">3</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Share Links</h3>
+                    <p class="text-gray-600 text-sm">Distribute voting or registration links</p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">4</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">View Results</h3>
+                    <p class="text-gray-600 text-sm">Monitor votes and announce results</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-green-600">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+                Ready to Start Your Election?
+            </h2>
+            <p class="text-green-100 text-lg mb-8 max-w-2xl mx-auto">
+                Join thousands of organizations that trust our secure voting platform for their elections.
+            </p>
+            <a href="admin_signup_page.html" class="bg-white text-green-600 hover:bg-gray-100 px-8 py-4 rounded-lg text-lg font-semibold transition duration-300 transform hover:scale-105 inline-block">
+                Get Started Free
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="flex justify-center items-center mb-4">
+                    <i class="fas fa-vote-yea text-2xl text-green-400 mr-2"></i>
+                    <span class="text-xl font-bold">VoteSecure</span>
+                </div>
+                <p class="text-gray-400 mb-4">Secure, Transparent, Trusted Voting</p>
+                <p class="text-gray-500 text-sm">© 2025 VoteSecure. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
