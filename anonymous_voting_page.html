@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-gray-50 min-h-screen">
     <!-- Navigation -->
     <nav class="bg-white shadow-sm border-b border-gray-200">
@@ -38,7 +40,8 @@
             </div>
 
             <!-- Anonymous Voting Benefits -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" id="benefitsCard" style="display: none;">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" id="benefitsCard"
+                style="display: none;">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Why Anonymous Voting?</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                     <div class="flex items-start">
@@ -99,17 +102,21 @@
         async function loadElectionInfo() {
             try {
                 console.log('📄 Loading anonymous election info...');
-                
+
                 const voteInfo = await apiCall(`/api/voter/anonymous-vote-info/${electionId}`, {
                     method: 'GET'
                 });
-                
+
                 console.log('✅ Election info loaded:', voteInfo);
                 electionData = voteInfo;
-                
-                displayVotingForm(voteInfo);
+
+                if (voteInfo.is_multi_position) {
+                    displayMultiPositionForm(voteInfo);
+                } else {
+                    displayVotingForm(voteInfo);
+                }
                 document.getElementById('benefitsCard').style.display = 'block';
-                
+
             } catch (error) {
                 console.error('❌ Failed to load election info:', error);
                 showError(error.message);
@@ -118,14 +125,14 @@
 
         function displayVotingForm(voteInfo) {
             const votingCard = document.getElementById('votingCard');
-            
+
             const endDate = new Date(voteInfo.end_time);
             const now = new Date();
             const daysLeft = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
-            
+
             let optionsHTML = '';
             const colors = ['green', 'blue', 'purple', 'orange', 'pink', 'indigo'];
-            
+
             voteInfo.options.forEach((option, index) => {
                 const color = colors[index % colors.length];
                 optionsHTML += `
@@ -156,7 +163,7 @@
                     </div>
                 `;
             });
-            
+
             votingCard.innerHTML = `
                 <!-- Header -->
                 <div class="bg-blue-600 px-6 py-4">
@@ -238,50 +245,255 @@
                     </div>
                 </div>
             `;
-            
+
             // Attach form handler
             document.getElementById('anonymousVotingForm').addEventListener('submit', handleVoteSubmission);
         }
 
+        function displayMultiPositionForm(voteInfo) {
+            const votingCard = document.getElementById('votingCard');
+
+            const endDate = new Date(voteInfo.end_time);
+            const now = new Date();
+            const daysLeft = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+
+            const colors = ['green', 'blue', 'purple', 'orange', 'pink', 'indigo'];
+
+            let positionsHTML = '';
+            voteInfo.positions.forEach((position, posIdx) => {
+                const posColor = colors[posIdx % colors.length];
+
+                let optionsHTML = '';
+                position.options.forEach((option, optIdx) => {
+                    optionsHTML += `
+                        <div class="relative">
+                            <input 
+                                type="radio" 
+                                id="pos${position.id}_opt${option.id}" 
+                                name="position_${position.id}" 
+                                value="${option.text}" 
+                                data-position-id="${position.id}"
+                                class="hidden peer"
+                                required
+                            >
+                            <label for="pos${position.id}_opt${option.id}" class="block p-3 border-2 border-gray-200 rounded-lg cursor-pointer peer-checked:border-${posColor}-500 peer-checked:bg-${posColor}-50 transition duration-200 hover:border-gray-300">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-${posColor}-100 rounded-full flex items-center justify-center">
+                                            <span class="text-${posColor}-800 font-bold">${optIdx + 1}</span>
+                                        </div>
+                                        <span class="font-medium text-gray-900">${option.text}</span>
+                                    </div>
+                                    <div class="peer-checked:block hidden">
+                                        <i class="fas fa-check-circle text-xl text-${posColor}-600"></i>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    `;
+                });
+
+                positionsHTML += `
+                    <div class="bg-gray-50 rounded-lg p-5 border border-gray-200">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-8 h-8 bg-${posColor}-600 rounded-full flex items-center justify-center">
+                                <span class="text-white font-bold text-sm">${posIdx + 1}</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">${position.title}</h3>
+                        </div>
+                        <div class="space-y-2">
+                            ${optionsHTML}
+                        </div>
+                    </div>
+                `;
+            });
+
+            votingCard.innerHTML = `
+                <!-- Header -->
+                <div class="bg-blue-600 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-user-secret text-white text-xl"></i>
+                            <h1 class="text-xl font-bold text-white">Anonymous Voting</h1>
+                        </div>
+                        <span class="px-3 py-1 text-sm font-medium bg-blue-700 text-white rounded-full">
+                            ${voteInfo.positions.length} Positions
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Election Info -->
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">${voteInfo.title}</h2>
+                    <p class="text-gray-600 mb-4">${voteInfo.description || 'Cast your anonymous vote for each position'}</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-500">
+                        <div class="flex items-center">
+                            <i class="fas fa-user-shield mr-3 w-5"></i>
+                            <span>Voting: <span class="font-medium text-gray-900">Completely Anonymous</span></span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-clock mr-3 w-5"></i>
+                            <span>Time Remaining: <span class="font-medium text-green-600">${daysLeft} days left</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Anonymous Notice -->
+                <div class="bg-green-50 border-b border-green-200 px-6 py-4">
+                    <div class="flex items-start">
+                        <i class="fas fa-user-secret text-green-600 mt-0.5 mr-3"></i>
+                        <div>
+                            <p class="text-sm text-green-800">
+                                <strong>Your privacy is protected:</strong> Select one candidate for each position. All votes are anonymous.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voting Form -->
+                <form id="multiAnonymousVotingForm" class="p-6 space-y-6">
+                    ${positionsHTML}
+
+                    <!-- Submit Button -->
+                    <div>
+                        <button 
+                            type="submit" 
+                            class="w-full bg-green-600 text-white hover:bg-green-700 px-6 py-4 rounded-lg font-semibold text-lg transition duration-200 transform hover:scale-[1.02] flex items-center justify-center"
+                        >
+                            <i class="fas fa-paper-plane mr-3"></i>
+                            Submit All Anonymous Votes
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Footer Info -->
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                    <div class="flex items-center justify-between text-sm text-gray-500">
+                        <div class="flex items-center">
+                            <i class="fas fa-user-secret mr-2"></i>
+                            <span>100% Anonymous - No tracking</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-chart-bar mr-2"></i>
+                            <span><a href="election_results_page.html?id=${electionId}" class="text-green-600 hover:text-green-500">View Live Results</a></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Attach form handler
+            document.getElementById('multiAnonymousVotingForm').addEventListener('submit', handleMultiVoteSubmission);
+        }
+
         async function handleVoteSubmission(e) {
             e.preventDefault();
-            
+
             const selectedChoice = document.querySelector('input[name="voteChoice"]:checked');
-            
+
             if (!selectedChoice) {
                 alert('Please select an option before submitting your vote.');
                 return;
             }
-            
+
             // Show confirmation dialog
             if (!confirm(`You are about to submit your anonymous vote.\n\nSelected: ${selectedChoice.value}\n\nThis action cannot be undone. Continue?`)) {
                 return;
             }
-            
+
             // Show loading state
             const button = document.querySelector('button[type="submit"]');
             const originalText = button.innerHTML;
             button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting Vote...';
             button.disabled = true;
-            
+
             try {
                 console.log('🗳️ Submitting anonymous vote...');
-                
+
                 const response = await apiCall(`/api/voter/vote/anonymous/${electionId}`, {
                     method: 'POST',
                     body: JSON.stringify({
                         choice: selectedChoice.value
                     })
                 });
-                
+
                 console.log('✅ Vote submitted:', response);
-                
+
                 showAnonymousVoteSuccess(selectedChoice.value);
-                
+
             } catch (error) {
                 console.error('❌ Vote submission failed:', error);
                 alert('Failed to submit vote: ' + error.message);
-                
+
+                // Reset button
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        async function handleMultiVoteSubmission(e) {
+            e.preventDefault();
+
+            // Collect all votes
+            const votes = [];
+            const positions = electionData.positions;
+            let allSelected = true;
+            let missingPositions = [];
+
+            for (const pos of positions) {
+                const selected = document.querySelector(`input[name="position_${pos.id}"]:checked`);
+                if (!selected) {
+                    allSelected = false;
+                    missingPositions.push(pos.title);
+                } else {
+                    votes.push({
+                        position_id: pos.id,
+                        choice: selected.value
+                    });
+                }
+            }
+
+            if (!allSelected) {
+                alert(`Please select a candidate for: ${missingPositions.join(', ')}`);
+                return;
+            }
+
+            // Show confirmation
+            let confirmMessage = 'You are about to submit the following anonymous votes:\n\n';
+            votes.forEach(vote => {
+                const pos = positions.find(p => p.id === vote.position_id);
+                confirmMessage += `${pos.title}: ${vote.choice}\n`;
+            });
+            confirmMessage += '\nThis action cannot be undone. Continue?';
+
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            // Show loading state
+            const button = document.querySelector('button[type="submit"]');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting Votes...';
+            button.disabled = true;
+
+            try {
+                console.log('🗳️ Submitting multi-position anonymous votes...');
+
+                const response = await apiCall(`/api/voter/vote/anonymous/${electionId}`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        votes: votes
+                    })
+                });
+
+                console.log('✅ Votes submitted:', response);
+
+                showMultiAnonymousVoteSuccess(votes);
+
+            } catch (error) {
+                console.error('❌ Vote submission failed:', error);
+                alert('Failed to submit votes: ' + error.message);
+
                 // Reset button
                 button.innerHTML = originalText;
                 button.disabled = false;
@@ -320,7 +532,51 @@
                     </div>
                 </div>
             `;
-            
+
+            // Hide benefits card
+            document.getElementById('benefitsCard').style.display = 'none';
+        }
+
+        function showMultiAnonymousVoteSuccess(votes) {
+            const votingCard = document.getElementById('votingCard');
+
+            let votesList = '';
+            votes.forEach(vote => {
+                const pos = electionData.positions.find(p => p.id === vote.position_id);
+                votesList += `<p><strong>${pos.title}:</strong> ${vote.choice}</p>`;
+            });
+
+            votingCard.innerHTML = `
+                <div class="p-8 text-center">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check text-3xl text-green-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Thank You for Voting!</h3>
+                    <p class="text-gray-600 mb-4">
+                        Your anonymous votes have been recorded.
+                    </p>
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-left">
+                        <p class="text-sm text-green-800 font-semibold mb-2"><i class="fas fa-user-secret mr-2"></i>Your anonymous votes:</p>
+                        <div class="text-sm text-green-800 space-y-1">
+                            ${votesList}
+                        </div>
+                    </div>
+                    <div class="space-y-3 text-sm text-gray-600 mb-6">
+                        <p>• No personal information was collected</p>
+                        <p>• Your responses cannot be traced back to you</p>
+                        <p>• Results help improve services for everyone</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                        <a href="election_results_page.html?id=${electionId}" class="bg-blue-600 text-white hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold transition duration-200 inline-block">
+                            <i class="fas fa-chart-bar mr-2"></i>View Results
+                        </a>
+                        <a href="index.html" class="bg-gray-600 text-white hover:bg-gray-700 px-6 py-3 rounded-lg font-semibold transition duration-200 inline-block">
+                            <i class="fas fa-home mr-2"></i>Return Home
+                        </a>
+                    </div>
+                </div>
+            `;
+
             // Hide benefits card
             document.getElementById('benefitsCard').style.display = 'none';
         }
@@ -352,4 +608,5 @@
         document.addEventListener('DOMContentLoaded', loadElectionInfo);
     </script>
 </body>
+
 </html>

@@ -152,8 +152,27 @@
                     </div>
                 </div>
 
-                <!-- Voting Options -->
-                <div id="votingOptionsSection">
+                <!-- Number of Positions -->
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Voting Positions</h2>
+                    <p class="text-sm text-gray-600 mb-4">How many positions are voters selecting for? (e.g., President, Vice President)</p>
+                    <div class="flex items-center space-x-4">
+                        <select id="positionCount" class="px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
+                            <option value="1" selected>1 Position (Single)</option>
+                            <option value="2">2 Positions</option>
+                            <option value="3">3 Positions</option>
+                            <option value="4">4 Positions</option>
+                            <option value="5">5 Positions</option>
+                        </select>
+                        <span class="text-sm text-gray-500">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Select "1 Position" for simple elections
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Single Position Voting Options (Default) -->
+                <div id="singlePositionSection">
                     <h2 class="text-xl font-semibold text-gray-900 mb-4">Voting Options</h2>
                     <p class="text-sm text-gray-600 mb-4">Add the choices that voters can select from (minimum 2 options)</p>
                     <div class="space-y-3">
@@ -171,6 +190,15 @@
                         <div id="optionsList" class="space-y-2">
                             <!-- Options will be added here dynamically -->
                         </div>
+                    </div>
+                </div>
+
+                <!-- Multi-Position Voting Options -->
+                <div id="multiPositionSection" style="display: none;">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Position Details</h2>
+                    <p class="text-sm text-gray-600 mb-4">Enter each position title and add candidates (minimum 2 per position)</p>
+                    <div id="positionsContainer" class="space-y-6">
+                        <!-- Position forms will be added here dynamically -->
                     </div>
                 </div>
 
@@ -237,7 +265,7 @@
                             <li>• Choose <strong>Secured Voting</strong> for important elections where you need to verify voters</li>
                             <li>• Use <strong>Anonymous Voting</strong> for quick surveys or public opinion polls</li>
                             <li>• Set realistic timeframes - most elections run for 24-48 hours</li>
-                            <li>• Add clear, distinct voting options to avoid confusion</li>
+                            <li>• Use <strong>Multiple Positions</strong> when voters need to select for different roles (e.g., President & VP)</li>
                         </ul>
                     </div>
                 </div>
@@ -260,9 +288,127 @@
             window.location.href = 'admin_login_page.html';
         }
 
+        // Single-position mode variables
         let optionCount = 0;
         let options = [];
+        
+        // Multi-position mode variables
+        let positions = []; // Array of {title: string, options: string[]}
 
+        // Handle position count change
+        document.getElementById('positionCount').addEventListener('change', function() {
+            const count = parseInt(this.value);
+            
+            if (count === 1) {
+                // Show single-position mode
+                document.getElementById('singlePositionSection').style.display = 'block';
+                document.getElementById('multiPositionSection').style.display = 'none';
+            } else {
+                // Show multi-position mode
+                document.getElementById('singlePositionSection').style.display = 'none';
+                document.getElementById('multiPositionSection').style.display = 'block';
+                generatePositionForms(count);
+            }
+        });
+
+        function generatePositionForms(count) {
+            const container = document.getElementById('positionsContainer');
+            container.innerHTML = '';
+            positions = [];
+            
+            const positionLabels = ['President', 'Vice President', 'Secretary', 'Treasurer', 'Director'];
+            
+            for (let i = 0; i < count; i++) {
+                positions.push({ title: '', options: [] });
+                
+                const posDiv = document.createElement('div');
+                posDiv.className = 'bg-gray-50 p-6 rounded-lg border border-gray-200';
+                posDiv.innerHTML = `
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Position ${i + 1}</h3>
+                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Required</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Position Title *</label>
+                            <input 
+                                type="text" 
+                                id="positionTitle_${i}"
+                                placeholder="e.g., ${positionLabels[i] || 'Position ' + (i + 1)}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
+                                onchange="updatePositionTitle(${i}, this.value)"
+                            >
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Candidates (minimum 2) *</label>
+                            <div class="flex items-center space-x-3">
+                                <input 
+                                    type="text" 
+                                    id="positionOptionInput_${i}"
+                                    placeholder="Enter candidate name"
+                                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
+                                    onkeypress="if(event.key === 'Enter') { event.preventDefault(); addPositionOption(${i}); }"
+                                >
+                                <button type="button" onclick="addPositionOption(${i})" class="bg-green-600 text-white hover:bg-green-700 px-4 py-3 rounded-lg font-medium transition duration-200">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <div id="positionOptionsList_${i}" class="space-y-2 mt-3">
+                                <!-- Candidates will be added here -->
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(posDiv);
+            }
+        }
+
+        function updatePositionTitle(index, value) {
+            positions[index].title = value.trim();
+        }
+
+        function addPositionOption(index) {
+            const input = document.getElementById(`positionOptionInput_${index}`);
+            const value = input.value.trim();
+            
+            if (value) {
+                positions[index].options.push(value);
+                
+                const list = document.getElementById(`positionOptionsList_${index}`);
+                const optNum = positions[index].options.length;
+                
+                const optionElement = document.createElement('div');
+                optionElement.className = 'flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200';
+                optionElement.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-6 h-6 bg-green-100 text-green-800 rounded-full text-sm flex items-center justify-center font-medium">${optNum}</span>
+                        <span class="text-gray-900">${value}</span>
+                    </div>
+                    <button type="button" onclick="removePositionOption(${index}, '${value.replace(/'/g, "\\'")}', this)" class="text-red-500 hover:text-red-700 transition duration-200">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                list.appendChild(optionElement);
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function removePositionOption(posIndex, value, button) {
+            positions[posIndex].options = positions[posIndex].options.filter(opt => opt !== value);
+            button.parentElement.remove();
+            
+            // Renumber remaining options
+            const list = document.getElementById(`positionOptionsList_${posIndex}`);
+            const optionElements = list.querySelectorAll(':scope > div');
+            optionElements.forEach((option, index) => {
+                const numberSpan = option.querySelector('span:first-child');
+                numberSpan.textContent = index + 1;
+            });
+        }
+
+        // Single-position mode functions
         function addOption() {
             const input = document.getElementById('optionInput');
             const value = input.value.trim();
@@ -280,7 +426,7 @@
                         <span class="w-6 h-6 bg-green-100 text-green-800 rounded-full text-sm flex items-center justify-center font-medium">${optionCount}</span>
                         <span class="text-gray-900">${value}</span>
                     </div>
-                    <button type="button" onclick="removeOption(this, '${value.replace(/'/g, "\\'")}', ${optionCount})" class="text-red-500 hover:text-red-700 transition duration-200">
+                    <button type="button" onclick="removeOption(this, '${value.replace(/'/g, "\\'")}')" class="text-red-500 hover:text-red-700 transition duration-200">
                         <i class="fas fa-times"></i>
                     </button>
                 `;
@@ -291,7 +437,7 @@
             }
         }
 
-        function removeOption(button, value, num) {
+        function removeOption(button, value) {
             options = options.filter(opt => opt !== value);
             button.parentElement.remove();
             
@@ -315,28 +461,48 @@
             const electionType = electionTypeElement ? electionTypeElement.value : 'secured';
             const startTime = document.getElementById('startTime').value;
             const endTime = document.getElementById('endTime').value;
-            
-            // Debug: Log what we're sending
-            console.log('📋 Election Type Selected:', electionType);
-            console.log('📋 All Form Data:', {
-                title,
-                description,
-                type: electionType,
-                startTime,
-                endTime,
-                options
-            });
+            const positionCount = parseInt(document.getElementById('positionCount').value);
             
             // Validation
-            if (options.length < 2) {
-                alert('Please add at least 2 voting options');
-                return;
-            }
-            
             if (new Date(startTime) >= new Date(endTime)) {
                 alert('End time must be after start time');
                 return;
             }
+            
+            let requestBody = {
+                title: title,
+                description: description || null,
+                type: electionType,
+                start_time: startTime,
+                end_time: endTime
+            };
+            
+            if (positionCount === 1) {
+                // Single-position mode
+                if (options.length < 2) {
+                    alert('Please add at least 2 voting options');
+                    return;
+                }
+                requestBody.options = options;
+            } else {
+                // Multi-position mode
+                for (let i = 0; i < positions.length; i++) {
+                    if (!positions[i].title) {
+                        alert(`Please enter a title for Position ${i + 1}`);
+                        return;
+                    }
+                    if (positions[i].options.length < 2) {
+                        alert(`Please add at least 2 candidates for "${positions[i].title}"`);
+                        return;
+                    }
+                }
+                requestBody.positions = positions.map(p => ({
+                    title: p.title,
+                    options: p.options
+                }));
+            }
+            
+            console.log('📋 Creating election:', requestBody);
             
             // Show loading state
             const submitButton = this.querySelector('button[type="submit"]');
@@ -345,23 +511,12 @@
             submitButton.disabled = true;
             
             try {
-                console.log('📄 Creating election...');
-                console.log('📋 Options:', options);
-                
-                // Real API call to create election
                 const response = await apiCall('/api/admin/elections', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${getAuthToken()}`
                     },
-                    body: JSON.stringify({
-                        title: title,
-                        description: description || null,
-                        type: electionType, // Send exactly as selected (no transformation)
-                        start_time: startTime,
-                        end_time: endTime,
-                        options: options
-                    })
+                    body: JSON.stringify(requestBody)
                 });
                 
                 console.log('✅ Election created:', response);
@@ -393,7 +548,7 @@
             document.getElementById('endTime').value = tomorrow.toISOString().slice(0, 16);
         });
 
-        // Allow pressing Enter to add options
+        // Allow pressing Enter to add options in single-position mode
         document.getElementById('optionInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
